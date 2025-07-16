@@ -31,4 +31,4 @@ management:
 
 app:
   api-key: secreta123
-  product-service-url: http://localhost:8081
+  product-service-url: http://producto-service:8081
