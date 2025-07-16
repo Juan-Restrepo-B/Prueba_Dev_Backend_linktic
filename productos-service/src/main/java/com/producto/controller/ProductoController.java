@@ -24,10 +24,10 @@ public class ProductoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<JsonApiResponse<ResponseEntity<JsonApiResponse<ProductoDto>>>> getById(@PathVariable Long id) {
-        ResponseEntity<JsonApiResponse<ProductoDto>> dto = productoService.findById(id);
-        return ResponseEntity.ok(   new JsonApiResponse<>(dto));
+    public ResponseEntity<JsonApiResponse<ProductoDto>> getById(@PathVariable Long id) {
+        return productoService.findById(id);
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<String> actualizarProducto(@PathVariable Long id, @RequestBody @Valid NewProductoDTO newProductoDTO) {
         return productoService.actualizarProducto(id, newProductoDTO);

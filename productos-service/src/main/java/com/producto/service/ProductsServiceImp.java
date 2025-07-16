@@ -6,7 +6,6 @@ import com.producto.dto.ProductoDto;
 import com.producto.entity.Inventario;
 import com.producto.entity.Producto;
 import com.producto.exception.BusinessException;
-import com.producto.exception.menssage.BusinessExceptionMenssage;
 import com.producto.repository.InventarioRepository;
 import com.producto.repository.ProductoRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.producto.exception.menssage.BusinessExceptionMenssage.*;
 
 @Service
 @Transactional
@@ -62,7 +63,8 @@ public class ProductsServiceImp implements IProductoService {
     public ResponseEntity<JsonApiResponse<ProductoDto>> findById(Long id) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        BusinessExceptionMenssage.ERROR_PRODUCTO_NO_ENCONTRADO + id, "P-400"
+                        ERROR_PRODUCTO_NO_ENCONTRADO + id, 
+                        PRODUCTO_NO_ENCONTRADO
                 ));
 
         ProductoDto productoDto = new ProductoDto(
@@ -77,7 +79,8 @@ public class ProductsServiceImp implements IProductoService {
     public ResponseEntity<String> actualizarProducto(Long id, NewProductoDTO newProductoDTO) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        BusinessExceptionMenssage.ERROR_PRODUCTO_NO_ENCONTRADO + id, "P-401"
+                        ERROR_PRODUCTO_NO_ENCONTRADO + id, 
+                        PRODUCTO_NO_ENCONTRADO
                 ));
 
         if (newProductoDTO.getNombre() != null) {
@@ -92,7 +95,8 @@ public class ProductsServiceImp implements IProductoService {
 
         Inventario inventario = inventarioRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        BusinessExceptionMenssage.ERROR_INVENTARIO_NO_ENCONTRADO + id, "P-402"
+                        ERROR_INVENTARIO_NO_ENCONTRADO + id,
+                        INVENTARIO_NO_ENCONTRADO
                 ));
 
         if (newProductoDTO.getCantidad() != null) {
@@ -109,14 +113,16 @@ public class ProductsServiceImp implements IProductoService {
 
         Inventario inventario = inventarioRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        BusinessExceptionMenssage.ERROR_INVENTARIO_NO_ENCONTRADO + id, "P-402"
+                        ERROR_INVENTARIO_NO_ENCONTRADO + id,
+                        INVENTARIO_NO_ENCONTRADO
                 ));
 
         inventarioRepository.delete(inventario);
 
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        BusinessExceptionMenssage.ERROR_PRODUCTO_NO_ENCONTRADO + id, "P-401"
+                        ERROR_PRODUCTO_NO_ENCONTRADO + id, 
+                        PRODUCTO_NO_ENCONTRADO
                 ));
 
         productoRepository.delete(producto);

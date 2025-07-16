@@ -1,8 +1,9 @@
-package com.inventario;
+package com.inventario.service;
 
 import com.inventario.client.ProductoClient;
 import com.inventario.entity.Inventario;
 import com.inventario.entity.MovimientosStock;
+import com.inventario.exception.BusinessException;
 import com.inventario.repository.InventarioRepository;
 import com.inventario.repository.MovimientosStockRepository;
 import com.inventario.service.InventarioServiceImp;
@@ -16,7 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class InventarioServiceImpTest {
+class InventionServiceImpTest {
 
     @Mock
     private InventarioRepository inventarioRepository;
@@ -87,19 +88,21 @@ class InventarioServiceImpTest {
 
     @Test
     void actualizarInventario_deberiaLanzarExcepcionSiNoHayInventario() {
-        Long productoId = 4L;
+        Long productoId = 2L;
 
+        when(productoClient.obtenerProductoPorId(productoId)).thenReturn("Producto info mock");
         when(inventarioRepository.findById(productoId)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () ->
+        BusinessException ex = assertThrows(BusinessException.class, () ->
                 inventarioService.actualizarInventario(productoId, 5L));
 
-        assertTrue(ex.getMessage().contains("Inventario no encontrado"));
+        assertTrue(ex.getMessage().contains("Producto no encontrado"));
+        assertEquals("P-401", ex.getCode()); // también puedes validar el código si quieres
     }
 
     @Test
     void actualizarInventario_deberiaLanzarExcepcionSiNoHayStockSuficiente() {
-        Long productoId = 5L;
+        Long productoId = 2L;
         Inventario inventario = new Inventario(productoId, 10L);
 
         when(inventarioRepository.findById(productoId)).thenReturn(Optional.of(inventario));

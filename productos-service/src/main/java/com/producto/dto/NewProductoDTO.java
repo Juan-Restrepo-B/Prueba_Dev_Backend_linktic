@@ -1,15 +1,11 @@
 package com.producto.dto;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
-@NoArgsConstructor
-@Getter
-@Setter
 @Data
+@NoArgsConstructor
 public class NewProductoDTO {
     private String nombre;
     private BigDecimal precio;

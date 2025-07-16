@@ -3,6 +3,7 @@ package com.inventario.service;
 import com.inventario.client.ProductoClient;
 import com.inventario.entity.Inventario;
 import com.inventario.entity.MovimientosStock;
+import com.inventario.exception.BusinessException;
 import com.inventario.repository.InventarioRepository;
 import com.inventario.repository.MovimientosStockRepository;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
+import static com.inventario.exception.menssage.BusinessExceptionMenssage.*;
 
 @Service
 @Transactional
@@ -32,13 +35,15 @@ public class InventarioServiceImp implements IInventarioService{
     @Override
     public ResponseEntity<String> actualizarInventario(Long productoId, Long cantidadComprada) {
         Inventario inventario = inventarioRepository.findById(productoId)
-                .orElseThrow(() -> new RuntimeException("Inventario no encontrado para productoId: " + productoId));
+                .orElseThrow(() -> new BusinessException(
+                        ERROR_PRODUCTO_NO_ENCONTRADO  + productoId, PRODUCTO_NO_ENCONTRADO));
 
         Long cantidadAnterior = inventario.getCantidad();
         Long cantidadNueva = cantidadAnterior - cantidadComprada;
 
         if (cantidadNueva < 0) {
-            throw new RuntimeException("Stock insuficiente para productoId: " + productoId);
+            throw new BusinessException(
+                    ERROR_STOCK_INSUFICIENTE + productoId, STOCK_INSUFICIENTE);
         }
 
         inventario.setCantidad(cantidadNueva);

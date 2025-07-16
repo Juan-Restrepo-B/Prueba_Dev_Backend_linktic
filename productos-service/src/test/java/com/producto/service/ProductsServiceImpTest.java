@@ -1,7 +1,8 @@
-package com.producto;
+package com.producto.service;
 
 import com.producto.dto.*;
 import com.producto.entity.*;
+import com.producto.exception.BusinessException;
 import com.producto.repository.*;
 import com.producto.service.ProductsServiceImp;
 import org.junit.jupiter.api.*;
@@ -140,4 +141,80 @@ class ProductsServiceImpTest {
         assertEquals(2, response.getBody().getData().size());
         assertEquals("Item1", response.getBody().getData().get(0).getNombre());
     }
+
+    @Test
+    void findById_deberiaLanzarBusinessExceptionConMensajeCorrecto() {
+        Long idInexistente = 99L;
+        when(productoRepository.findById(idInexistente)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> productsService.findById(idInexistente));
+
+        assertEquals("Producto no encontrado con id: " + idInexistente, exception.getMessage());
+        assertEquals("P-401", exception.getCode());
+    }
+
+    @Test
+    void actualizarProducto_deberiaLanzarBusinessExceptionSiNoExisteInventario() {
+        Long id = 10L;
+        Producto producto = new Producto("Test", BigDecimal.TEN);
+        producto.setId(id);
+
+        when(productoRepository.findById(id)).thenReturn(Optional.of(producto));
+        when(inventarioRepository.findById(id)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> productsService.actualizarProducto(id, new NewProductoDTO("Test", BigDecimal.ONE, 5L)));
+
+        assertEquals("Inventario no encontrado con id: " + id, exception.getMessage());
+        assertEquals("P-403", exception.getCode());
+    }
+
+    @Test
+    void eliminarProducto_deberiaLanzarBusinessExceptionSiNoExisteInventario() {
+        Long id = 88L;
+        when(inventarioRepository.findById(id)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> productsService.eliminarProducto(id));
+
+        assertEquals("Inventario no encontrado con id: " + id, exception.getMessage());
+        assertEquals("P-403", exception.getCode());
+    }
+    @Test
+    void actualizarProducto_noDeberiaActualizarCamposSiSonNull() {
+        Producto producto = new Producto("Tablet", BigDecimal.valueOf(3000));
+        producto.setId(5L);
+        Inventario inventario = new Inventario(5L, 10L);
+
+        when(productoRepository.findById(5L)).thenReturn(Optional.of(producto));
+        when(inventarioRepository.findById(5L)).thenReturn(Optional.of(inventario));
+
+        NewProductoDTO dto = new NewProductoDTO(null, null, null);
+        ResponseEntity<String> response = productsService.actualizarProducto(5L, dto);
+
+        verify(productoRepository).save(producto);
+        verify(inventarioRepository).save(inventario);
+
+        assertEquals(BigDecimal.valueOf(3000), producto.getPrecio());
+        assertEquals("Tablet", producto.getNombre());
+        assertTrue(response.getBody().contains("actualizado"));
+    }
+    @Test
+    void actualizarProducto_noDeberiaActualizarInventarioSiCantidadEsNull() {
+        Producto producto = new Producto("Camara", BigDecimal.valueOf(5000));
+        producto.setId(6L);
+        Inventario inventario = new Inventario(6L, 7L);
+
+        when(productoRepository.findById(6L)).thenReturn(Optional.of(producto));
+        when(inventarioRepository.findById(6L)).thenReturn(Optional.of(inventario));
+
+        NewProductoDTO dto = new NewProductoDTO("Camara", BigDecimal.valueOf(5500), null);
+        ResponseEntity<String> response = productsService.actualizarProducto(6L, dto);
+
+        verify(productoRepository).save(producto);
+        verify(inventarioRepository).save(inventario);
+        assertEquals(7L, inventario.getCantidad());
+    }
+
 }
