@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin2025*
+      MYSQL_DATABASE: prueba_tecnica_dev
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin2025*
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  producto-service:
+    build: ./producto-service
+    container_name: producto-service
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/prueba_tecnica_dev
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin2025*
+      SPRING_PROFILES_ACTIVE: dev
+    depends_on:
+      - mysql
+
+  inventario-service:
+    build: ./inventario-service
+    container_name: inventario-service
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/prueba_tecnica_dev
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin2025*
+      APP_PRODUCT_SERVICE_URL: http://producto-service:8081
+    depends_on:
+      - mysql
+      - producto-service
+
+volumes:
+  mysql_data:
