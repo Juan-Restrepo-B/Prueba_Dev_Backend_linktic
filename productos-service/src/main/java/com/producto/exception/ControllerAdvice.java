@@ -6,9 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 @org.springframework.web.bind.annotation.ControllerAdvice
 public class ControllerAdvice {
@@ -27,21 +24,5 @@ public class ControllerAdvice {
     public ResponseEntity<ErrorDTO> businessExceptionHandler(BusinessException ex){
         ErrorDTO error = ErrorDTO.builder().code(ex.getCode()).message(ex.getMessage()).build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(BusinessException.FormatoEmailIncorrectoException.class)
-    public ResponseEntity<Object> handleFormatoEmailIncorrectoException(BusinessException.FormatoEmailIncorrectoException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("mensaje", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(BusinessException.LongitudCampoException.class)
-    public ResponseEntity<Object> handleLongitudCampoException(BusinessException.LongitudCampoException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("mensaje", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }
